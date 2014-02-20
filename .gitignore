@@ -1,0 +1,10 @@
+.settings
+target
+.classpath
+.proejct
+*~
+.idea
+*.iml
+template/
+.DS_Store
+src/main/java/SandBox.java
