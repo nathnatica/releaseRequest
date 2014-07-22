@@ -6,16 +6,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 import static com.github.tester.util.ResourceBundleUtil.get;
 
 public class ModifiedFileFilter {
     final static Logger logger = LoggerFactory.getLogger(ModifiedFileFilter.class);
 
-    static List<String> fileRootList;
+    static Map<String, String> fileRootMap;
     static List<String> excludePathList;
     static List<String> excludeFileList;
     static List<String> excludeExtList;
@@ -23,11 +21,16 @@ public class ModifiedFileFilter {
     public static List<File> getModifiedFileList() {
         final List<File> modifiedFileList = new ArrayList<File>();
         
-        getCheckList();
-        
-        for (String path : fileRootList) {
+         getSrcRootMap();
+
+        for (String key : fileRootMap.keySet()) {
+            String path = fileRootMap.get(key);
             logger.info("##### {} #########################################", "CHECK : " + path);
             List<File> l = SVNUtil.getModifiedFileList(path);
+
+            getExcludePathList(key);
+            getExcludeFileList(key);
+            getExcludeExtList(key);
             
             excludePathFilter(l, path, excludePathList);
             excludeFileFilter(l, excludeFileList);
@@ -80,24 +83,15 @@ public class ModifiedFileFilter {
         }
     }
 
-    public static void getCheckList() {
-        getSrcRootList();
-
-        getExcludePathList();
-
-        getExcludeFileList();
-
-        getExcludeExtList();
-    }
-
-    private static void getExcludeExtList() {
+    private static void getExcludeExtList(String key) {
         List<String> excludeExtList = new ArrayList<String>();
-        for (int i=1; i<=10; i++) {
+        for (int i=1; i<=20; i++) {
             String excludeExt;
             try {
-                excludeExt = get("exclude.ext." + i);
+                excludeExt = get("exclude.ext." + key + "." + i);
             } catch (Exception e) {
-                continue;
+                logger.debug("[ERROR FINDING PROPERTY] {}", "exclude.ext." + key + "." + i) ;
+                break;
             }
             if (excludeExt != null) {
                 excludeExtList.add(excludeExt);
@@ -107,14 +101,15 @@ public class ModifiedFileFilter {
         ModifiedFileFilter.excludeExtList = excludeExtList;
     }
 
-    private static void getExcludeFileList() {
+    private static void getExcludeFileList(String key) {
         List<String> excludeFileList = new ArrayList<String>();
-        for (int i=1; i<=10; i++) {
+        for (int i=1; i<=20; i++) {
             String excludeFile;
             try {
-                excludeFile = get("exclude.file." + i);
+                excludeFile = get("exclude.file." + key + "." + i);
             } catch (Exception e) {
-                continue;
+                logger.debug("[ERROR FINDING PROPERTY] {}", "exclude.file." + key + "." + i) ;
+                break;
             }
             if (excludeFile != null) {
                 excludeFileList.add(excludeFile);
@@ -124,14 +119,15 @@ public class ModifiedFileFilter {
         ModifiedFileFilter.excludeFileList = excludeFileList;
     }
 
-    private static void getExcludePathList() {
+    private static void getExcludePathList(String key) {
         List<String> excludePathList = new ArrayList<String>();
         String excludePath;
-        for (int i=1; i<=10; i++) {
+        for (int i=1; i<=20; i++) {
             try {
-                excludePath = get("exclude.path." + i);
+                excludePath = get("exclude.path." + key + "." + i);
             } catch (Exception e) {
-                continue;
+                logger.debug("[ERROR FINDING PROPERTY] {}", "exclude.path." + key + "." + i) ;
+                break;
             }
             if (excludePath != null) {
                 excludePathList.add(excludePath);
@@ -141,20 +137,21 @@ public class ModifiedFileFilter {
         ModifiedFileFilter.excludePathList = excludePathList;
     }
 
-    private static void getSrcRootList() {
-        List<String> srcRootList = new ArrayList<String>();
+    private static void getSrcRootMap() {
+        Map<String, String> srcRootMap = new LinkedHashMap<String, String>();
         String srcRoot;
         for (int i=1; i<=3; i++) {
             try {
                 srcRoot = get("file.root." + i);
             } catch (Exception e) {
-                continue;
+                logger.debug("[ERROR FINDING PROPERTY] {}", "file.root." + i) ;
+                break;
             }
             if (srcRoot != null) {
-                srcRootList.add(srcRoot);
+                srcRootMap.put(Integer.toString(i), srcRoot);
                 srcRoot = null;
             }
         }
-        ModifiedFileFilter.fileRootList = srcRootList;
+        ModifiedFileFilter.fileRootMap = srcRootMap;
     }
 }
