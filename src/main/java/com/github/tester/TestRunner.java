@@ -121,7 +121,9 @@ public class TestRunner {
                     } else if (t == 'D') {
                         type = "delete";
                     }
-                    writeRow(msg, path, filename, type, wb);
+                    String author = logEntry.getAuthor();
+                    String time = logEntry.getDate().toString();
+                    writeRow(msg + "(" + author + ")," + time, path, filename, type, wb);
                 }
             }
         }
