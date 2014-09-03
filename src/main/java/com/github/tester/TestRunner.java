@@ -175,37 +175,6 @@ public class TestRunner {
                 break;
             }
         }
-        
-//        String front = "front";
-//        if (path.startsWith(front)) {
-//            String colList = get("excel." + front + ".column");
-//            String[] temp = colList.split(",");
-//            for (String t : temp) {
-//                Cell c = row.getCell(ExcelUtil.getCellColumn(t));
-//                c.setCellValue("●");
-//            }
-//        }
-//
-//        String central = "central";
-//        if (path.startsWith(central)) {
-//            String colList = get("excel." + central + ".column");
-//            String[] temp = colList.split(",");
-//            for (String t : temp) {
-//                Cell c = row.getCell(ExcelUtil.getCellColumn(t));
-//                c.setCellValue("●");
-//            }
-//        }
-//
-//        String admin = "admin";
-//        if (path.startsWith(admin)) {
-//            String colList = get("excel." + admin + ".column");
-//            String[] temp = colList.split(",");
-//            for (String t : temp) {
-//                Cell c = row.getCell(ExcelUtil.getCellColumn(t));
-//                c.setCellValue("●");
-//            }
-//        }
-        
     }
     
     
