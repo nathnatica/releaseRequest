@@ -144,7 +144,7 @@ public class TestRunner {
         cell1.setCellValue(TestRunner.rowCounter.getValue() - Integer.parseInt(get("base.row")) +1);
 
         Cell cell2 = row.getCell(++cur_col);
-        cell2.setCellValue("SrcWeb_GLB");
+        cell2.setCellValue(get("excel.repo.name"));
 
         Cell cell3 = row.getCell(++cur_col);
         cell3.setCellValue(msg);
@@ -158,35 +158,53 @@ public class TestRunner {
         Cell cell6 = row.getCell(++cur_col);
         cell6.setCellValue(type);
         
-        String front = "front";
-        if (path.startsWith(front)) {
-            String colList = get("excel." + front + ".column");
-            String[] temp = colList.split(",");
-            for (String t : temp) {
-                Cell c = row.getCell(ExcelUtil.getCellColumn(t));
-                c.setCellValue("●");
+        for (int i=1; i<=3; i++) {
+            String key = "excel.group." + i + ".starts.with";
+            try {
+                String start = get(key);
+                if (path.startsWith(start)) {
+                    String colList = get("excel.group." + i + ".column");
+                    String[] temp = colList.split(",");
+                    for (String t : temp) {
+                        Cell c = row.getCell(ExcelUtil.getCellColumn(t));
+                        c.setCellValue("●");
+                    }
+                }
+            } catch (Exception e) {
+                logger.warn(e.getMessage() + e);
+                break;
             }
         }
-
-        String central = "central";
-        if (path.startsWith(central)) {
-            String colList = get("excel." + central + ".column");
-            String[] temp = colList.split(",");
-            for (String t : temp) {
-                Cell c = row.getCell(ExcelUtil.getCellColumn(t));
-                c.setCellValue("●");
-            }
-        }
-
-        String admin = "admin";
-        if (path.startsWith(admin)) {
-            String colList = get("excel." + admin + ".column");
-            String[] temp = colList.split(",");
-            for (String t : temp) {
-                Cell c = row.getCell(ExcelUtil.getCellColumn(t));
-                c.setCellValue("●");
-            }
-        }
+        
+//        String front = "front";
+//        if (path.startsWith(front)) {
+//            String colList = get("excel." + front + ".column");
+//            String[] temp = colList.split(",");
+//            for (String t : temp) {
+//                Cell c = row.getCell(ExcelUtil.getCellColumn(t));
+//                c.setCellValue("●");
+//            }
+//        }
+//
+//        String central = "central";
+//        if (path.startsWith(central)) {
+//            String colList = get("excel." + central + ".column");
+//            String[] temp = colList.split(",");
+//            for (String t : temp) {
+//                Cell c = row.getCell(ExcelUtil.getCellColumn(t));
+//                c.setCellValue("●");
+//            }
+//        }
+//
+//        String admin = "admin";
+//        if (path.startsWith(admin)) {
+//            String colList = get("excel." + admin + ".column");
+//            String[] temp = colList.split(",");
+//            for (String t : temp) {
+//                Cell c = row.getCell(ExcelUtil.getCellColumn(t));
+//                c.setCellValue("●");
+//            }
+//        }
         
     }
     
