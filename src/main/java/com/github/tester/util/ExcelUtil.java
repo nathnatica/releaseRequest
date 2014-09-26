@@ -71,17 +71,32 @@ public class ExcelUtil {
     }
 
     public static int getCellColumn(String t) {
-        String input = t.toLowerCase();
+        String reversed = new StringBuilder(t.toLowerCase()).reverse().toString();
         int position = 0;
-        for (int i=input.length()-1; i>=0; i--) {
-            int temp = input.charAt(i) - 'a';
+        for (int i=0; i<reversed.length(); i++) {
+            int temp = (reversed.charAt(0) - 'a') + 1;
             if (i>0) {
-                position = (temp + 26) + position;
+                int tt = (reversed.charAt(1) - 'a') + 1;
+                position = (26*tt) + position;
             } else {
                 position = position + temp;
             }
         }
-        return position;
+        return position -1;
     }
+
+//	public static int getCellColumn(String t) {
+//        String input = t.toLowerCase();
+//        int position = 0;
+//        for (int i=input.length()-1; i>=0; i--) {
+//            int temp = input.charAt(i) - 'a';
+//            if (i>0) {
+//                position = (temp + 26) + position;
+//            } else {
+//                position = position + temp;
+//            }
+//        }
+//        return position;
+//    }
 
 }
