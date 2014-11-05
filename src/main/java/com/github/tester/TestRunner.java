@@ -101,6 +101,8 @@ public class TestRunner {
         
         for (SVNLogEntry logEntry : filteredList) {
             if (logEntry.getChangedPaths().size() > 0) {
+                
+                String latestTag = SVNUtil.getLatestTag(get("svn.root"), name, pass, get("svn.tag.path"), date, svnCheckMessage);
 
                 Set<String> sortedSet = SVNUtil.getSortedChangedPaths(logEntry);
                 
@@ -123,7 +125,12 @@ public class TestRunner {
                     }
                     String author = logEntry.getAuthor();
                     String time = logEntry.getDate().toString();
-                    writeRow(msg + "(" + author + ")," + time, path, filename, type, wb);
+                    
+                    if (latestTag == null) {
+                        writeRow(msg + "(" + author + ")," + time, path, filename, type, wb);
+                    } else {
+                        writeRow(latestTag, path, filename, type, wb);
+                    }
                 }
             }
         }
@@ -179,7 +186,9 @@ public class TestRunner {
     
     
     private static void writeWorkbook(Workbook wb) throws IOException {
-        FileOutputStream fileOut = new FileOutputStream(get("output.file"));
+		File dir = new File(get("output.dir"));
+		dir.mkdirs();
+        FileOutputStream fileOut = new FileOutputStream(get("output.dir") + get("output.file"));
         wb.write(fileOut);
         fileOut.close();
     }

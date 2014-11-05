@@ -73,7 +73,38 @@ public class SVNUtil {
         sortedSet.addAll(changedPathSet);
         return sortedSet;
     }
-    
-    
-    
+
+    public static String getLatestTag(String root, String name, String pass, String path, Date checkDate, String comment) {
+        try {
+            SVNRepository repository = SVNRepositoryFactory.create(SVNURL.parseURIEncoded(root));
+            ISVNAuthenticationManager authManager = SVNWCUtil.createDefaultAuthenticationManager(name, pass);
+            repository.setAuthenticationManager(authManager);
+
+            SVNDirEntry latest = null;
+
+            // get latest directory
+            Collection entries = repository.getDir(path, -1, null, (Collection) null);
+            for (Object entry1 : entries) {
+                SVNDirEntry entry = (SVNDirEntry) entry1;
+                if (entry.getDate().after(checkDate)) {
+                    if (latest == null || entry.getDate().after(latest.getDate())) {
+                        // check log message and return dir name
+                        Collection logEntries = repository.log(new String[]{path + "/" + entry.getName()}, null, 0, -1, true, true);
+                        for (Object logEntry1 : logEntries) {
+                            SVNLogEntry logEntry = (SVNLogEntry) logEntry1;
+                            if (logEntry.getMessage() != null && logEntry.getMessage().contains(comment)) {
+                                latest = entry;
+                            }
+                        }
+                    }
+                }
+            }
+            if (latest != null) {
+                return latest.getName();
+            }
+        } catch (SVNException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 }
