@@ -1,6 +1,7 @@
 package com.github.tester.util;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 import org.slf4j.Logger;
@@ -9,10 +10,8 @@ import org.tmatesoft.svn.core.*;
 import org.tmatesoft.svn.core.wc.*;
 import org.tmatesoft.svn.core.SVNException;
 import org.tmatesoft.svn.core.SVNLogEntry;
-import org.tmatesoft.svn.core.SVNLogEntryPath;
 import org.tmatesoft.svn.core.SVNURL;
 import org.tmatesoft.svn.core.auth.ISVNAuthenticationManager;
-import org.tmatesoft.svn.core.internal.io.dav.DAVRepositoryFactory;
 import org.tmatesoft.svn.core.io.SVNRepository;
 import org.tmatesoft.svn.core.io.SVNRepositoryFactory;
 
@@ -106,5 +105,60 @@ public class SVNUtil {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public static String getNewTagName(String root, String name, String pass, String path) {
+        try {
+            SVNRepository repository = SVNRepositoryFactory.create(SVNURL.parseURIEncoded(root));
+            ISVNAuthenticationManager authManager = SVNWCUtil.createDefaultAuthenticationManager(name, pass);
+            repository.setAuthenticationManager(authManager);
+
+            SVNDirEntry latest = null;
+
+            // get latest directory
+            Collection entries = repository.getDir(path, -1, null, (Collection) null);
+            for (Object entry1 : entries) {
+                SVNDirEntry entry = (SVNDirEntry) entry1;
+                if (latest == null || entry.getDate().after(latest.getDate())) {
+                    // check log message and return dir name
+                    Collection logEntries = repository.log(new String[]{path + "/" + entry.getName()}, null, 0, -1, true, true);
+                    for (Object logEntry1 : logEntries) {
+                        SVNLogEntry logEntry = (SVNLogEntry) logEntry1;
+                        latest = entry;
+                    }
+                }
+            }
+
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+            Calendar c = GregorianCalendar.getInstance();
+            String today = sdf.format(c.getTime());
+            
+            if (latest != null) {
+                String current = latest.getName();
+                if (current.startsWith(today)) {
+                    String no = current.split("\\-")[1];
+                    int n = Integer.parseInt(no) + 1;
+                    StringBuilder sb = new StringBuilder(today).append("-");
+                    if (n < 10) {
+                        sb.append("0");
+                    }
+                    sb.append("" + n);
+                    return sb.toString();
+                }
+            }
+            return today + "-01";
+        } catch (SVNException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static void copy(String name, String pass, String from, String to, String message) throws SVNException {
+        ISVNAuthenticationManager authManager = SVNWCUtil.createDefaultAuthenticationManager(name, pass);
+        SVNCopyClient scc = new SVNCopyClient(authManager, null);
+        SVNURL src = SVNURL.parseURIDecoded(from);
+        SVNURL dst = SVNURL.parseURIDecoded(to);
+        SVNCopySource csrc = new SVNCopySource(SVNRevision.HEAD, SVNRevision.HEAD, src);
+        scc.doCopy(new SVNCopySource[]{csrc}, dst, false, false, true, message, null);
     }
 }

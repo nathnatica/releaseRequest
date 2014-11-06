@@ -13,6 +13,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
+import org.tmatesoft.svn.core.SVNException;
 import org.tmatesoft.svn.core.SVNLogEntry;
 import org.tmatesoft.svn.core.SVNLogEntryPath;
 import org.tmatesoft.svn.core.internal.io.dav.DAVRepositoryFactory;
@@ -81,12 +82,19 @@ public class TestRunner {
         }
     }
 
-    private static void getSVNInfo(Workbook wb) {
+    private static void getSVNInfo(Workbook wb) throws SVNException {
         DAVRepositoryFactory.setup();
 
         String url = get("svn.path");
         String name = get("svn.account.id");
         String pass = get("svn.account.pass");
+
+        if (StringUtils.equals("Y", get("make.new.tag"))) {
+            logger.info("##### {} #########################################", "MAKE NEW TAG");
+            String newTag = SVNUtil.getNewTagName(get("svn.root"), name, pass, get("svn.tag.path"));
+            String to = get("svn.root") + "/" + get("svn.tag.path") + "/" + newTag;
+            SVNUtil.copy(name, pass, url, to, get("release.issue"));
+        }
 
         SVNRepository repository = SVNUtil.getSVNRepository(url, name, pass);
         
