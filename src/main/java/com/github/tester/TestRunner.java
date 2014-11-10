@@ -105,7 +105,7 @@ public class TestRunner {
         String svnCheckMessage = get("svn.check.message");
         
         
-        List<SVNLogEntry> filteredList = SVNLogEntryFilter.filter(logEntities, svnCheckAccount, svnCheckMessage);
+        List<SVNLogEntry> filteredList = SVNLogEntryFilter.filter(logEntities, svnCheckAccount, svnCheckMessage, date);
         
         for (SVNLogEntry logEntry : filteredList) {
             if (logEntry.getChangedPaths().size() > 0) {

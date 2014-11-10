@@ -5,22 +5,23 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tmatesoft.svn.core.SVNLogEntry;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 public class SVNLogEntryFilter {
     final static Logger logger = LoggerFactory.getLogger(SVNLogEntryFilter.class);
     
-    public static List<SVNLogEntry> filter(Collection<SVNLogEntry> logEntries, String checkAccount, String checkMessage) {
+    public static List<SVNLogEntry> filter(Collection<SVNLogEntry> logEntries, String checkAccount, String checkMessage, Date checkDate) {
     
         List<SVNLogEntry> l = new ArrayList<SVNLogEntry>();
         
         for (Iterator entries = logEntries.iterator(); entries.hasNext();) {
             SVNLogEntry logEntry = (SVNLogEntry) entries.next();
             boolean target = true;
-
+            
+            if (logEntry.getDate().before(checkDate)) {
+                target = false;
+            }
+            
             if (StringUtils.isNotBlank(checkAccount) && (!checkAccount.contains(logEntry.getAuthor()))) {
                 target = false;
             }
