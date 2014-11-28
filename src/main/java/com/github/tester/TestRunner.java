@@ -1,8 +1,6 @@
 package com.github.tester;
 
-import com.github.tester.util.ExcelUtil;
-import com.github.tester.util.SVNUtil;
-import com.github.tester.util.TimeUtil;
+import com.github.tester.util.*;
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
 import org.apache.commons.lang3.StringUtils;
@@ -18,7 +16,6 @@ import org.tmatesoft.svn.core.SVNLogEntry;
 import org.tmatesoft.svn.core.SVNLogEntryPath;
 import org.tmatesoft.svn.core.internal.io.dav.DAVRepositoryFactory;
 import org.tmatesoft.svn.core.io.SVNRepository;
-import com.github.tester.util.ResourceBundleUtil;
 
 import static com.github.tester.util.ResourceBundleUtil.get;
 
@@ -41,6 +38,43 @@ public class TestRunner {
         setLog();
         
         logger.info("##### {} #########################################", "START");
+        
+        if (args.length > 1) {
+            String cmd = args[1];
+            logger.info("COMMAND : {}", cmd) ;
+            if (StringUtils.equals("COPY", cmd)) {
+                File to = new File(get("mail.file.path") + get("output.file"));
+                if (to.exists()) {
+                    logger.error("File already exists : {}", to.getAbsolutePath());
+                    return;
+                } else {
+                    try {
+                        Files.createParentDirs(to);
+                        File from = new File(get("output.dir") + get("output.file"));
+                        Files.copy(from, to);
+                        logger.info("COPY COMPLETED #######################");
+                        logger.info("FROM : {}", from.getAbsolutePath());
+                        logger.info("TO   : {}", to.getAbsolutePath());
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                return;
+            } else if (StringUtils.equals("MAIL", cmd)) {
+                String h = get("mail.smtp.host");
+                String p = get("mail.smtp.port");
+                String u = get("mail.auth.user.name");
+                String up = get("mail.auth.user.pass");
+                MailSender ms = new MailSender(h, p, u, up);
+                String subject = get("mail.subject");
+                String body = get("mail.body");
+                String from = get("mail.address.from");
+                String to = get("mail.address.to");
+                ms.send(subject, body, from, to);
+                logger.info("MAIL SENT SUCCESSFULLY #######################");
+                return;
+            }
+        }
 
         String f = get("input.file." + get("site"), false);
         Workbook wb = ExcelUtil.getWorkbook(get("input.folder") + f);
