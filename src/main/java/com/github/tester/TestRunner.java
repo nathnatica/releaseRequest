@@ -70,7 +70,8 @@ public class TestRunner {
                 String body = get("mail.body");
                 String from = get("mail.address.from");
                 String to = get("mail.address.to");
-                ms.send(subject, body, from, to);
+                String cc = get("mail.address.cc");
+                ms.send(subject, body, from, to, cc);
                 logger.info("MAIL SENT SUCCESSFULLY #######################");
                 return;
             }

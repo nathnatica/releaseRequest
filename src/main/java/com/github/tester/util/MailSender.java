@@ -1,12 +1,16 @@
 package com.github.tester.util;
 
+import org.apache.commons.lang3.StringUtils;
+
 import javax.mail.*;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.StringTokenizer;
 
 public class MailSender {
     private String smtpHost;
@@ -21,7 +25,7 @@ public class MailSender {
         this.authPassword = authPassword;
     }
     
-    public void send (String subject, String body, String from, String... to) {
+    public void send (String subject, String body, String from, String to, String cc) {
         Properties props = new Properties();
         props.put("mail.smtp.host", smtpHost);
         props.put("mail.smtp.port", smtpPort);
@@ -37,22 +41,36 @@ public class MailSender {
 
         InternetAddress fromAddress = null;
         
-        List<InternetAddress> addrList = new ArrayList<InternetAddress>();
+        List<InternetAddress> toList = new ArrayList<InternetAddress>();
+        List<InternetAddress> ccList = new ArrayList<InternetAddress>();
         try {
-            fromAddress = new InternetAddress(from);
-            for (String temp : to) {
-                InternetAddress t = new InternetAddress(temp);
-                addrList.add(t);
+            fromAddress = getAddress(from);
+            StringTokenizer st = new StringTokenizer(to, ",");
+            while (st.hasMoreTokens()) {
+                String token = st.nextToken();
+                InternetAddress addr = getAddress(token);
+                toList.add(addr);
+            }
+            StringTokenizer st2 = new StringTokenizer(cc, ",");
+            while (st2.hasMoreTokens()) {
+                String token = st2.nextToken();
+                InternetAddress addr = getAddress(token);
+                ccList.add(addr);
             }
         } catch (AddressException e) {
             e.printStackTrace();
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
         }
-        InternetAddress[] addrArray = new InternetAddress[addrList.size()];
-        addrList.toArray(addrArray);
+        InternetAddress[] toArray = new InternetAddress[toList.size()];
+        toList.toArray(toArray);
+        InternetAddress[] ccArray = new InternetAddress[ccList.size()];
+        ccList.toArray(ccArray);
         
         try {
             simpleMessage.setFrom(fromAddress);
-            simpleMessage.setRecipients(Message.RecipientType.TO, addrArray);
+            simpleMessage.setRecipients(Message.RecipientType.TO, toArray);
+            simpleMessage.setRecipients(Message.RecipientType.CC, ccArray);
             simpleMessage.setSubject(subject);
             simpleMessage.setText(body);
         } catch (MessagingException e) {
@@ -66,5 +84,14 @@ public class MailSender {
         }
         
         
+    }
+    
+    private InternetAddress getAddress(String address) throws AddressException, UnsupportedEncodingException {
+        if (StringUtils.contains(address, ":")) {
+            String[] temp = StringUtils.split(address, ":");
+            return new InternetAddress(temp[0],temp[1]);
+        } else {
+            return new InternetAddress(address);
+        }
     }
 }
