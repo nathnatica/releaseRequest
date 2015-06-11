@@ -181,8 +181,17 @@ public class TestRunner {
         
     }
 
-    
+
+    static HashMap<String, String> rowMapForCheckDuplicated = new HashMap<String,String>();
     private static void writeRow(String msg, String path, String name, String type, Workbook wb) {
+        
+        String mapKey = path + name;
+        if (rowMapForCheckDuplicated.containsKey(mapKey)) {
+            logger.debug("[SKIP  ROW] {} {} {} {}", new Object[]{msg, path, name, type});
+            return;
+        } else {
+            rowMapForCheckDuplicated.put(mapKey, type);
+        }
         
         logger.debug("[WRITE ROW] {} {} {} {}", new Object[]{msg, path, name, type});
         
