@@ -37,7 +37,7 @@ public class SVNLogEntryFilter {
                 logger.info("date        " + logEntry.getDate());
                 logger.info("log message " + logEntry.getMessage());
                 logger.info("-------------------------------");
-                l.add(0, logEntry);
+                l.add(logEntry);
             } else {
                 logger.info("[REVISION IGNORED] {}::{}::{}", new Object[]{logEntry.getRevision(), logEntry.getAuthor(), logEntry.getMessage()});
             }
